@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Author : Kartavya Goswami
+Purpose : This dispatcher servlet will add necessary files into our project.
+		Moreover, It will direct the pages according to URL.
+ -->
+ 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context 
+                        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<!-- The base-package will decide which packages to use
+	to search any java class. -->
+	<context:component-scan base-package="com.work" />
+
+	<mvc:annotation-driven />
+
+	<!-- This bean will connect our project with the Database. -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverName}" />
+		<property name="url" value="${jdbc.databaseurl}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- This bean will provide the location for the database properties. -->
+	<context:property-placeholder
+		location="WEB-INF/jdbc.properties" />
+		
+		
+	<!-- The view resolver bean will direct all URL requests. So, it will find all requested 
+		pages in WEB-INF/jsps/ folder and add .jsp suffix.-->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/jsps/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.work.entity" />
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=${jdbc.dialect}
+			</value>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+
+</beans>
+		
